@@ -1,0 +1,55 @@
+{
+  "name": "keynotes",
+  "version": "1.0.0",
+  "description": "Javascript Object Animation library based on timeline for interactive web",
+  "main": "lib/Keynotes.js",
+  "author": "Hyuntak Cha",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --progress --colors --watch",
+    "test": "mocha-webpack --require mocha-helper.js --webpack-config webpack.config-test.js \"test/**/*.spec.js\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chaht01/Keynotes.git"
+  },
+  "keywords": [
+    "animation",
+    "threejs",
+    "pixi",
+    "interactive"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/register": "^7.0.0",
+    "babel-eslint": "^8.0.3",
+    "babel-loader": "^8.0.0-beta.4",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-env": "^7.0.0-beta.3",
+    "chai": "^4.1.2",
+    "eslint": "^5.0.1",
+    "eslint-loader": "^2.0.0",
+    "jsdom": "12.2.0",
+    "jsdom-global": "3.0.2",
+    "mocha": "^4.0.1",
+    "mocha-webpack": "^2.0.0-beta.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.12.2",
+    "webpack-cli": "^3.0.8",
+    "webpack-node-externals": "^1.7.2",
+    "yargs": "^10.0.3"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "babel-plugin-add-module-exports"
+    ]
+  }
+}
