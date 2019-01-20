@@ -51,5 +51,13 @@
     "plugins": [
       "babel-plugin-add-module-exports"
     ]
+  },
+  "dependencies": {
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.difference": "^4.5.0",
+    "lodash.find": "^4.6.0",
+    "lodash.isfunction": "^3.0.9",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.isstring": "^4.0.1"
   }
 }

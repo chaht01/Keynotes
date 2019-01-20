@@ -1,7 +1,7 @@
 /* global describe, it, before */
 
 import chai from "chai";
-import { Note, NoteObject, Longtake } from "../lib/Longtake.js";
+import { Note, NoteObject, Keynotes } from "../lib/Keynotes";
 
 chai.expect();
 
@@ -20,7 +20,8 @@ describe("Given an instance of my Note library", () => {
   });
   describe("when I need the Object", () => {
     it("should return the object", () => {
-      expect(lib.getObject()).to.be.equal([1, 2, 3]);
+      expect(lib.getObject()).to.be.an("array");
+      expect(lib.getObject()).to.deep.equal([1, 2, 3]);
     });
   });
 });
