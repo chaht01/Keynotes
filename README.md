@@ -6,6 +6,18 @@ Scene based animation JS library
 [![npm](https://img.shields.io/badge/license-MIT-blue.svg)](https://www.npmjs.com/package/keynotes)
 [![npm](https://img.shields.io/badge/version-1.0.0-green.svg)](https://www.npmjs.com/package/keynotes)
 
+## How to install
+
+```
+ $ npm install --save keynotes
+```
+
+or if you use yarn instead,
+
+```
+ $ yarn add keynotes
+```
+
 ## What is Keynotes?
 
 > Scene based animation JS library.
@@ -26,7 +38,9 @@ Different from traditional animation provided as video or gif, web, especially j
 
 > Let's assume that you want to animate a red ball 10px to right for 1 second. After then, you want to oscillate that ball by changing color from red to black waiting user's click event. With such click event, ball, regardless of its color, change as transparent within 2 second. The initial animation should start when page loaded.
 
-### STEP1: Define Keynote & Note
+---
+
+### **STEP1: Define Keynote & Note**
 
 Your story looks good to have two scene. The first one handles initial movement of red ball and the other one treats opacity of the ball.
 
@@ -46,7 +60,7 @@ const noteSecond = keynote.addNote("noteSecond", {
 });
 ```
 
-### STEP2: Register objects to Keynote
+### **STEP2: Register objects to Keynote**
 
 It is plausible you already specify your ball in many ways - by using html and css or canvas/WebGL. The only thing you need to do is register your object with name. `keynote` object will trace, reference and apply all objects' animation by name. Therefore, you should define **unique** name.
 
@@ -58,7 +72,7 @@ let ball = document.getElementById("myBall");
 keynote.addNoteObject("ballToAnimate", ball);
 ```
 
-### STEP3: Specifiy each scene's animation within registered objects
+### **STEP3: Specifiy each scene's animation within registered objects**
 
 Now, let's specify animation!
 
@@ -148,7 +162,9 @@ The curious part is specifying values of array to each object setter. The meanin
 Also, you can use your own easing function which signature follow this.
 
 ```js
-function yourEasingFunction (time, base, change, duration) // return double value.
+function yourEasingFunction(time, base, change, duration) {
+  // return double value.
+}
 ```
 
 The tricky but powerful feature is `from` and `to`. They support you to define the initial value(`from`) and destination value(`to`). However, `to` also can be used to describe the value during the animation from `start` to `end` duration. Therefore, belows are exatly same specification of animation.
@@ -192,7 +208,74 @@ The tricky but powerful feature is `from` and `to`. They support you to define t
 
 You may know easing can be defined as Boolean. If easing is defined as `false`, keynote calculate and call setter of each object immediately(without interpolate value from easing). The `true` means same as `linear` as well.
 
-## Strength
+Specifying `easing` as `false` is somewhat tricky and circuitous to assign value to object's property when setter requires not a numerical value. For example, `style.backgroundColor` should be assigned string type. In this case, you can set `easing` as `false` and define `to` as function that returns string value.
+
+Another magical feature is "assiging `-1` to `end`". `-1` indicates "this segment animation should prolong until this note terminates". Thus,
+
+> After then, you want to oscillate that ball by changing color from red to black waiting user's click event.
+
+can be resolved as
+
+```js
+  ...
+      "style.backgroundColor": [
+        {
+          start: 1,
+          end: -1,
+          from: "rgba(255, 0, 0, 1)",
+          to: function(time, ball, index, transition_duration) {
+            const ratio = Math.cos(time);
+            const next = 255 * ratio;
+            return `rgba(${next}, 0, 0, 1)`;
+          },
+          easing: false
+        }
+      ]
+  ...
+```
+
+### **STEP4: Set Note order before start**
+
+Each note's specification is independent to others. In other words, it depends on how your `keynote` set notes(`noteFirst` and `noteSecond`) order.
+
+```js
+keynote.setNoteOrder(["noteFirst", "noteSecond"]); // note name
+```
+
+or
+
+```js
+keynote.setNoteOrder([noteFirst, noteSecond]); // assigned variables.
+```
+
+### **FINAL STEP: Start(Animating) Note with Handling user event**
+
+The `noteFirst` does not guarantee `noteSecond` to proceed automatically. Such trait rather encourage note traversing to be flexible.
+
+Let's suppose `keynote` should start `noteFirst` right after page loaded.
+
+```js
+keynote.startNote(noteFirst);
+```
+
+Meanwhile, what if you disable users navigating during `noteFirst` animation but enable them to do(by clicking)? Keynotes supports `beforeAnimation` and `afterAnimation` options like below.
+
+```js
+keynote.startNote(noteFirst, {
+  beforeAnimation: function() {
+    // disable click events on navigation
+    document.getElementById("nav").removeEventListener("click", handleNav);
+  },
+  afterAnimation: function() {
+    // enable click events on navigation
+    document.getElementById("nav").addEventListener("click", handleNav);
+  }
+});
+```
+
+---
+
+## Strength & Features
 
 Manually, it was able to code each object's animation using vanilla js, jqeury and GSAP. However, in case these animation settings are operated concurrently, the performance of animation frame rate rapidly slowed.
 
@@ -200,53 +283,50 @@ Keynotes' animation settings only requires each object's animation through timel
 
 Also, Keynotes' powerful timeline based animation specificaiton can help you rewind and jump to any keynote easily. It is really powerful feature for storyteller to design, develope and test their ideas on web.
 
-## Features
+### **Lifecycle Handling**
 
-### Lifecycle Handling
+Calculation is cheap but rendering is not. It indicates that regardless of robustness of calucalation, the matter of rendering is much more expensive in many cases. Thus, managing objects considering whether some of them should be in render pass should be able to be done by developers. Keynotes supports lifecycle of each note to handle such problem.
 
-Each Note has their own lifecycle and you can define one or more of them below.
-
-- beforeBuild
-- beforeAnimation
-- afterAnimation
-- afterDestroy
-
-For example, if you want an object `A` visibility should be set as visible before animation but as hidden right before animating next Note,
+To illustrate, if `noteFirst` needs `object1` but `noteSecond` doesn't since `object1` placed behind the scene, it is far better idea that removing `object1` from render pass. Such idea can be reified when each note is defined.
 
 ```js
-{
-  ...some other specification,
-  beforeAnimation(){
-    A.style = "visiblity: visible";
+const noteFirst = keynote.addNote("noteFirst", {
+  object_options: {
+    // your animation options
   },
-  afterDestory(){
-    A.style = "visibility: hidden";
+  beforeBuild: function(isForwardDirection) {
+    // capture and bind objects what you will render
+  },
+  afterDestroy: function(isForwardDirection) {
+    // release and unbind objects what you will render
   }
-}
+});
 ```
 
-### Ordering Notes for Storyteller
+With above specification, the actual render process of `noteFirst` right after invoked will be,
+
+> beforeBuild > beforeAnimation > (animating) > afterAnimation > (wait user's event) > afterDestory
+
+### **Ordering Notes for Storyteller**
 
 With each note's animation should be specified independently, predefining order of scenes can be powerful.
 
 Let's take an example as you predefine notes' order like below.
 
 ```
+
 [ Note A] -- [ Note B ] -- [ Note C ]
+
 ```
 
 If animating note is `Note A` and user want to interrupt this animation to start `Note C` without losing animation context flow, Keynotes can help this user's concern. The only command user need is "Just start `Note C`". Smart Keynotes then process animation through `Note B` and `Note C` automatically within 1sec minimizing losing frame rate.
 
 From this Powerful feature, it is also able to rewind animation with any given start point to end point. This animation structure satisfy storyteller's concern about navigation!
 
-### Animation Expressiveness
+### **Animation Expressiveness**
 
 The state of Note can be described as lifecycle mentioned above, but the mid of animation is more complex because of two state: (1) Directional and (2) Circular. Any animation can be classified by these criteria and thus, any NoteObject can be defined whether its animation is Directional or Circular. Keynotes supports this with easy rules.
 
-### Object Sharing
+### **Object Sharing**
 
 In many cases, polluting namespace is not that good idea. Without solid frameworks, such concerns irritate developers incessantly. Keynotes support shared singletone namespace through Keynotes instance. Based on the assumption that any time(tick) is single, the idea sharing object through all notes from Keynotes instance is really powerful.
-
-## How to use?
-
-## How to contribute?
