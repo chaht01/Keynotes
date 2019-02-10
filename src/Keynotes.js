@@ -3,6 +3,8 @@ const _isPlainObject = require("lodash.isplainobject");
 const _isString = require("lodash.isstring");
 const _find = require("lodash.find");
 const binarySearch = require("./binarySearch");
+const NoteObject = require("./NoteObject");
+const Note = require("./Note");
 
 class Keynotes {
   constructor() {

@@ -1,3 +1,5 @@
+const _cloneDeep = require("lodash.clonedeep");
+
 class NoteObject {
   constructor(name, object3D, options) {
     this.name = name;
