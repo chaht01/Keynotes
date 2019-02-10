@@ -2,6 +2,7 @@ const _isFunction = require("lodash.isfunction");
 const _cloneDeep = require("lodash.clonedeep");
 const _difference = require("lodash.difference");
 const easing = require("./easing");
+const binarySearch = require("./binarySearch");
 
 class Note {
   constructor(name, { object_options, beforeBuild, afterDestroy }) {

@@ -1,6 +1,6 @@
 {
   "name": "keynotes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Javascript Object Animation library based on timeline for interactive web",
   "main": "lib/Keynotes.js",
   "author": "Hyuntak Cha",
