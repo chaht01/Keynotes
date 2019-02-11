@@ -4,7 +4,7 @@ Scene based animation JS library
 
 ![Travis](https://travis-ci.com/chaht01/Keynotes.svg?branch=master)
 [![npm](https://img.shields.io/badge/license-MIT-blue.svg)](https://www.npmjs.com/package/keynotes)
-[![npm](https://img.shields.io/badge/version-1.0.0-green.svg)](https://www.npmjs.com/package/keynotes)
+[![npm](https://img.shields.io/badge/version-1.0.3-green.svg)](https://www.npmjs.com/package/keynotes)
 
 ## How to install
 
