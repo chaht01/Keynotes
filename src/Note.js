@@ -1,5 +1,6 @@
 const _isFunction = require("lodash.isfunction");
-const _cloneDeep = require("lodash.clonedeep");
+const _cloneDeepWith = require("lodash.clonedeepwith");
+const _clone = require("lodash.clone");
 const _difference = require("lodash.difference");
 const easing = require("./easing");
 const binarySearch = require("./binarySearch");
@@ -39,14 +40,18 @@ class Note {
       // Guarantee that first keyframe is start
       segment_stack[object_name] = {
         ...segment_stack[object_name],
-        [prop_key]: spec // pure object(from and to could be function)
+        [prop_key]: new Spec(spec) // pure object(from and to could be function)
       };
     });
     split_records_unique.slice(1).map(tick => {
       this.segments.push({
         start: prev_start,
         end: tick,
-        object_prop_spec: _cloneDeep(segment_stack)
+        object_prop_spec: _cloneDeepWith(segment_stack, value => {
+          if (value instanceof Spec) {
+            return value;
+          }
+        })
       });
       prev_start = tick;
       if (this._split.end.hasOwnProperty(tick)) {
@@ -61,7 +66,7 @@ class Note {
         this._split.start[tick].map(([object_name, prop_key, spec]) => {
           segment_stack[object_name] = {
             ...segment_stack[object_name],
-            [prop_key]: spec
+            [prop_key]: new Spec(spec)
           };
         });
       }
@@ -173,7 +178,7 @@ class Note {
       target_props.map(prop => {
         try {
           objects[name].getObjectAsArray().map((item, index) => {
-            const target_animation = object_prop_spec[name][prop];
+            const target_animation = object_prop_spec[name][prop].spec;
             const prop_chain = prop.split(".");
             this.calculateAnimation(
               tick,
@@ -328,6 +333,12 @@ class Note {
 
   toString() {
     return this.name;
+  }
+}
+
+class Spec {
+  constructor(spec) {
+    this.spec = spec;
   }
 }
 
